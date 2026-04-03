@@ -1,0 +1,196 @@
+<div class="flex h-screen bg-gray-900 text-white">
+
+  <!-- ================= LOGIN ================= -->
+  <div *ngIf="!isLogged" class="flex items-center justify-center w-full">
+    <div class="bg-gray-800 p-8 rounded-2xl w-80 text-center shadow-lg">
+
+      <h2 class="text-lg mb-4 font-semibold">Login 🔐</h2>
+
+      <input [(ngModel)]="username"
+        placeholder="Username"
+        class="w-full p-3 mb-3 rounded-full bg-gray-700 text-white outline-none" />
+
+      <input [(ngModel)]="password"
+        type="password"
+        placeholder="Password"
+        class="w-full p-3 mb-4 rounded-full bg-gray-700 text-white outline-none" />
+
+      <button (click)="login()"
+        class="w-full bg-blue-500 py-2 rounded-full mb-2 hover:bg-blue-600">
+        Login
+      </button>
+
+      <button (click)="register()"
+        class="w-full bg-gray-600 py-2 rounded-full hover:bg-gray-500">
+        Register
+      </button>
+
+    </div>
+  </div>
+
+  <!-- ================= CHAT ================= -->
+  <div *ngIf="isLogged" class="flex w-full">
+
+    <!-- ===== SIDEBAR ===== -->
+    <div class="w-64 bg-gray-800 border-r border-gray-700 flex flex-col p-4 hidden md:flex">
+
+      <!-- TOP -->
+      <div>
+        <h2 class="text-lg font-semibold">Chat Room</h2>
+        <p class="text-xs text-gray-400 mb-4">
+          {{ users.length }} users online
+        </p>
+
+        <!-- USERS -->
+        <div class="space-y-2">
+          <div *ngFor="let user of users"
+               class="flex items-center gap-2 p-2 rounded-lg"
+               [ngClass]="user.name === username ? 'bg-blue-600/30' : ''">
+
+            <!-- AVATAR -->
+            <div class="w-8 h-8 rounded-full flex items-center justify-center text-xs"
+                 [ngClass]="user.name === username ? 'bg-blue-500' : 'bg-gray-600'">
+              {{ user.name[0] | uppercase }}
+            </div>
+
+            <!-- NAME -->
+            <span class="text-sm flex items-center gap-1">
+              {{ user.name }}
+
+              <!-- YOU BADGE -->
+              <span *ngIf="user.name === username"
+                    class="text-xs text-blue-400">(You)</span>
+            </span>
+
+            <!-- ONLINE DOT -->
+            <div class="w-2 h-2 bg-green-400 rounded-full ml-auto"></div>
+
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== BOTTOM (LOGOUT) ===== -->
+      <div class="mt-auto pt-4 border-t border-gray-700">
+
+        <div class="flex items-center gap-2 mb-3">
+          <div class="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-xs">
+            {{ username[0] | uppercase }}
+          </div>
+          <span class="text-sm font-semibold">
+            {{ username }}
+          </span>
+        </div>
+
+        <button (click)="logout()"
+          class="w-full bg-red-500 py-2 rounded-full text-sm hover:bg-red-600">
+          Logout
+        </button>
+
+      </div>
+
+    </div>
+
+    <!-- ===== MAIN CHAT ===== -->
+    <div class="flex-1 flex justify-center">
+
+      <div class="w-full max-w-3xl flex flex-col bg-gray-800 shadow-lg">
+
+        <!-- ===== HEADER ===== -->
+        <div class="p-4 border-b border-gray-700 flex items-center gap-3">
+
+          <div class="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center">
+            {{ username[0] | uppercase }}
+          </div>
+
+          <div>
+            <div class="font-semibold">Chat Room</div>
+            <div class="text-xs text-gray-400">Online</div>
+          </div>
+
+        </div>
+
+        <!-- ===== MESSAGES ===== -->
+        <div #chatContainer class="flex-1 p-4 overflow-y-auto space-y-3">
+
+          <div *ngFor="let msg of messages">
+
+            <!-- SYSTEM -->
+            <div *ngIf="msg.system"
+                 class="text-center text-gray-400 text-xs italic">
+              {{ msg.message }}
+            </div>
+
+            <!-- MESSAGE -->
+            <div *ngIf="!msg.system"
+                 class="flex items-end gap-2"
+                 [ngClass]="isMe(msg) ? 'justify-end' : 'justify-start'">
+
+              <!-- AVATAR OTHER -->
+              <div *ngIf="!isMe(msg)"
+                   class="w-8 h-8 rounded-full bg-gray-600 flex items-center justify-center text-xs">
+                {{ msg.author[0] | uppercase }}
+              </div>
+
+              <!-- BUBBLE -->
+              <div class="px-4 py-2 rounded-2xl max-w-xs break-words shadow"
+                   [ngClass]="isMe(msg)
+                     ? 'bg-blue-500 text-white rounded-br-none'
+                     : 'bg-gray-700 text-white rounded-bl-none'">
+
+                {{ msg.message }}
+
+                <!-- STATUS + TIME -->
+                <div class="text-[10px] mt-1 opacity-70 flex items-center gap-1"
+                     [ngClass]="isMe(msg) ? 'justify-end' : 'justify-start'">
+
+                  <!-- STATUS (only me) -->
+                  <ng-container *ngIf="isMe(msg)">
+                    <span *ngIf="msg.status === 'pending'">⏳</span>
+                    <span *ngIf="msg.status === 'sent'">✓</span>
+                    <span *ngIf="msg.status === 'seen'">✓✓</span>
+                  </ng-container>
+
+                  <!-- TIME -->
+                  <span>
+                    {{ msg.timestamp | date:'HH:mm' }}
+                  </span>
+
+                </div>
+
+              </div>
+
+              <!-- AVATAR ME -->
+              <div *ngIf="isMe(msg)"
+                   class="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-xs">
+                {{ username[0] | uppercase }}
+              </div>
+
+            </div>
+
+          </div>
+
+        </div>
+
+        <!-- ===== INPUT ===== -->
+        <div class="p-3 border-t border-gray-700 flex items-center gap-2">
+
+          <input [(ngModel)]="message"
+                 (keyup.enter)="sendMessage()"
+                 (input)="onTyping()"
+                 class="flex-1 p-3 rounded-full bg-gray-700 text-white outline-none"
+                 placeholder="Type a message..." />
+
+          <button (click)="sendMessage()"
+            class="bg-blue-500 px-4 py-2 rounded-full hover:bg-blue-600">
+            ➤
+          </button>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</div>

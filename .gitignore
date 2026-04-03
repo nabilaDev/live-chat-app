@@ -1,0 +1,41 @@
+# ======================
+# NODE / BACKEND
+# ======================
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# ENV
+.env
+
+# Logs
+logs
+*.log
+
+# ======================
+# ANGULAR / FRONTEND
+# ======================
+dist/
+.angular/
+.cache/
+
+# Angular environment files (optionnel)
+src/environments/*.ts
+
+# ======================
+# OS
+# ======================
+.DS_Store
+Thumbs.db
+
+# ======================
+# IDE
+# ======================
+.vscode/
+.idea/
+
+# ======================
+# MongoDB local data (si jamais)
+# ======================
+data/
