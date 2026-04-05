@@ -7,14 +7,9 @@ const cors = require('cors');
 
 const connectDB = require('./config/db');
 const Message = require('./models/message.js');
-const authRoutes = require('./routes/auth');
+const app = require('./app');
 
-const app = express();
-app.use(cors());
-app.use(express.json());
 
-// ===== AUTH ROUTES =====
-app.use('/api/auth', authRoutes);
 
 // ===== CONNECT DB =====
 connectDB();
@@ -191,18 +186,7 @@ io.on('connection', (socket) => {
 
 });
 
-// ===== HEALTH CHECK =====
-app.get('/health', (req, res) => {
-  res.json({
-    status: 'OK',
-    uptime: process.uptime()
-  });
-});
 
-// ===== ROOT =====
-app.get('/', (req, res) => {
-  res.send('Chat server is running 🚀');
-});
 
 // ===== START SERVER =====
 const PORT = process.env.PORT || 3001;
